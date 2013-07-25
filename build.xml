@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project default="all" name="SendIMTelcoService">
+    <target name="init">
+        <path id="slee">
+            <pathelement location="lib/slee.jar"/>
+        </path>
+        <taskdef classname="org.mobicents.eclipslee.ant.SbbJar"
+            classpath="lib/slee-tasks.jar" name="sbbjar"/>
+        <taskdef classname="org.mobicents.eclipslee.ant.EventJar"
+            classpath="lib/slee-tasks.jar" name="eventjar"/>
+        <taskdef classname="org.mobicents.eclipslee.ant.ProfileSpecJar"
+            classpath="lib/slee-tasks.jar" name="profilespecjar"/>
+        <taskdef classname="org.mobicents.eclipslee.ant.DeployableJar"
+            classpath="lib/slee-tasks.jar" name="deployablejar"/>
+        <taskdef
+            classname="org.mobicents.eclipslee.ant.ResourceAdaptorTypeJar"
+            classpath="lib/slee-tasks.jar" name="resourceadaptortypejar"/>
+        <taskdef
+            classname="org.mobicents.eclipslee.ant.ResourceAdaptorJar"
+            classpath="lib/slee-tasks.jar" name="resourceadaptorjar"/>
+        <path id="ExternalComponents">
+            <pathelement location="lib/DU/sip11-ra-DU-2.6.0.FINAL-Eclipslee.jar/jars/jain-sip-api-1.2.jar"/>
+            <pathelement location="lib/DU/sip11-ra-DU-2.6.0.FINAL-Eclipslee.jar/jars/jain-sip-ri-1.2.164.jar"/>
+            <pathelement location="lib/DU/sip11-ra-DU-2.6.0.FINAL-Eclipslee.jar/jars/sip11-events-2.6.0.FINAL.jar"/>
+            <pathelement location="lib/DU/sip11-ra-DU-2.6.0.FINAL-Eclipslee.jar/jars/sip11-library-2.6.0.FINAL.jar"/>
+            <pathelement location="lib/DU/sip11-ra-DU-2.6.0.FINAL-Eclipslee.jar/jars/sip11-ra-2.6.0.FINAL.jar"/>
+            <pathelement location="lib/DU/sip11-ra-DU-2.6.0.FINAL-Eclipslee.jar/jars/sip11-ratype-2.6.0.FINAL.jar"/>
+        </path>
+        <path id="path-SendIM-sbb">
+            <pathelement location="/home/julian/Telcomp-Workspace/SendIMTelcoService/jars/EndSendIMTelcoService-event.jar"/>
+            <pathelement location="/home/julian/Telcomp-Workspace/SendIMTelcoService/jars/StartSendIMTelcoService-event.jar"/>
+        </path>
+    </target>
+    <target depends="init" name="all">
+        <ant target="build-StartSendIMTelcoService-event"/>
+        <ant target="build-EndSendIMTelcoService-event"/>
+        <ant target="build-SendIM-sbb"/>
+        <ant target="build-sendim-DU"/>
+    </target>
+    <target depends="init" name="clean">
+        <ant target="clean-StartSendIMTelcoService-event"/>
+        <ant target="clean-EndSendIMTelcoService-event"/>
+        <ant target="clean-SendIM-sbb"/>
+        <ant target="clean-sendim-DU"/>
+    </target>
+    <target depends="init" name="build-StartSendIMTelcoService-event">
+        <mkdir dir="classes/StartSendIMTelcoService-event"/>
+        <mkdir dir="jars/"/>
+        <javac destdir="classes/StartSendIMTelcoService-event"
+            includes="org/telcomp/events/StartSendIMTelcoServiceEvent.java" srcdir="src">
+            <classpath>
+                <path refid="slee"/>
+            </classpath>
+        </javac>
+        <eventjar classpath="classes/StartSendIMTelcoService-event"
+            destfile="jars/StartSendIMTelcoService-event.jar" eventjarxml="src/org/telcomp/events/StartSendIMTelcoService-event-jar.xml"/>
+    </target>
+    <target name="clean-StartSendIMTelcoService-event">
+        <delete file="jars/StartSendIMTelcoService-event.jar"/>
+        <delete dir="classes/StartSendIMTelcoService-event"/>
+    </target>
+    <target depends="init" name="build-EndSendIMTelcoService-event">
+        <mkdir dir="classes/EndSendIMTelcoService-event"/>
+        <mkdir dir="jars/"/>
+        <javac destdir="classes/EndSendIMTelcoService-event"
+            includes="org/telcomp/events/EndSendIMTelcoServiceEvent.java" srcdir="src">
+            <classpath>
+                <path refid="slee"/>
+            </classpath>
+        </javac>
+        <eventjar classpath="classes/EndSendIMTelcoService-event"
+            destfile="jars/EndSendIMTelcoService-event.jar" eventjarxml="src/org/telcomp/events/EndSendIMTelcoService-event-jar.xml"/>
+    </target>
+    <target name="clean-EndSendIMTelcoService-event">
+        <delete file="jars/EndSendIMTelcoService-event.jar"/>
+        <delete dir="classes/EndSendIMTelcoService-event"/>
+    </target>
+    <target depends="init" name="build-SendIM-sbb">
+        <mkdir dir="classes/SendIM-sbb"/>
+        <mkdir dir="jars/"/>
+        <javac destdir="classes/SendIM-sbb"
+            includes="org/telcomp/sbb/SendIMSbb.java" srcdir="src">
+            <classpath>
+                <path refid="path-SendIM-sbb"/>
+                <path refid="ExternalComponents"/>
+                <path refid="slee"/>
+            </classpath>
+        </javac>
+        <copy file="src/org/telcomp/sbb/SendIM-sbb-jar.xml" tofile="classes/SendIM-sbb/sbb-jar.xml"/>
+        <jar basedir="classes/SendIM-sbb" destfile="jars/SendIM-sbb.jar" includes="**/*.class">
+            <metainf dir="classes/SendIM-sbb" includes="sbb-jar.xml"/>
+        </jar>
+    </target>
+    <target name="clean-SendIM-sbb">
+        <delete file="jars/SendIM-sbb.jar"/>
+        <delete dir="classes/SendIM-sbb"/>
+    </target>
+    <target depends="build-EndSendIMTelcoService-event,build-StartSendIMTelcoService-event" name="build-sendim-DU">
+        <mkdir dir="classes/sendim-DU"/>
+        <copy file="src/org/telcomp/service/sendim-deployable-unit.xml" tofile="classes/sendim-DU/deployable-unit.xml"/>
+        <jar jarfile="jars/sendim-DU.jar">
+            <metainf dir="classes/sendim-DU" includes="deployable-unit.xml"/>
+            <fileset dir="" includes="jars/SendIM-sbb.jar"/>
+            <fileset dir="" includes="jars/EndSendIMTelcoService-event.jar"/>
+            <fileset dir="" includes="jars/StartSendIMTelcoService-event.jar"/>
+            <fileset dir="." includes="src/org/telcomp/service/sendim-service.xml"/>
+        </jar>
+    </target>
+    <target name="clean-sendim-DU">
+        <delete file="jars/sendim-DU.jar"/>
+        <delete dir="classes/sendim-DU"/>
+    </target>
+</project>
