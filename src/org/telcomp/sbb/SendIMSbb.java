@@ -42,6 +42,13 @@ public abstract class SendIMSbb implements javax.slee.Sbb {
 	private HeaderFactory headerFactory;
 
 	public void onStartSendIMTelcoServiceEvent(StartSendIMTelcoServiceEvent event, ActivityContextInterface aci) {
+		System.out.println("*******************************************");
+		System.out.println("SendIMTelcoService Invoked");
+		System.out.println("Input CallIdHeader = "+event.getCallIdHeader());
+		System.out.println("Input FromUserUri = "+event.getFromUserUri());
+		System.out.println("Input ToUserUri = "+event.getToUserUri());
+		System.out.println("Input Message = "+event.getMessage());
+		
 		String toUserUri = event.getToUserUri();
 		String fromUserUri = null;
 		String message = event.getMessage();
@@ -69,13 +76,18 @@ public abstract class SendIMSbb implements javax.slee.Sbb {
 			ct.sendRequest();
 			ct.terminate();
 			HashMap<String, Object> operationInputs = new HashMap<String, Object>();
-			operationInputs.put("toUserUri", (String) event.getToUserUri());
+			operationInputs.put("imSended", (String) "true");
 			EndSendIMTelcoServiceEvent EndSendIMTelcoServiceEvent = new EndSendIMTelcoServiceEvent(operationInputs);
 			this.fireEndSendIMTelcoServiceEvent(EndSendIMTelcoServiceEvent, aci, null);
-		} catch (TransactionUnavailableException e) {
-			e.printStackTrace();
-		} catch (SipException e) {
-			e.printStackTrace();
+			System.out.println("Output IMSended = true");
+			System.out.println("*******************************************");
+		} catch (Exception e) {
+			HashMap<String, Object> operationInputs = new HashMap<String, Object>();
+			operationInputs.put("imSended", (String) "false");
+			EndSendIMTelcoServiceEvent EndSendIMTelcoServiceEvent = new EndSendIMTelcoServiceEvent(operationInputs);
+			this.fireEndSendIMTelcoServiceEvent(EndSendIMTelcoServiceEvent, aci, null);
+			System.out.println("Output IMSended = false");
+			System.out.println("*******************************************");
 		}
 		aci.detach(this.sbbContext.getSbbLocalObject());
 	}
